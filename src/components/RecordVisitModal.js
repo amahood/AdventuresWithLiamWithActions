@@ -1,11 +1,31 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
-function RecordVisitModal({ adventure, onSave, onClose }) {
+function RecordVisitModal({ adventure, onSave, onClose, isEditing }) {
   const [dateVisited, setDateVisited] = useState('');
   const [memories, setMemories] = useState('');
   const [images, setImages] = useState([]);
   const [thumbnailIndex, setThumbnailIndex] = useState(0);
   const fileInputRef = useRef(null);
+
+  // Pre-populate fields when editing
+  useEffect(() => {
+    if (isEditing && adventure.visited) {
+      setDateVisited(adventure.dateVisited || '');
+      setMemories(adventure.memories || '');
+      if (adventure.images && adventure.images.length > 0) {
+        setImages(adventure.images.map((img, index) => ({
+          id: Date.now() + index,
+          dataUrl: img,
+          name: `photo-${index + 1}`
+        })));
+        // Find the thumbnail index
+        if (adventure.thumbnail) {
+          const thumbIdx = adventure.images.findIndex(img => img === adventure.thumbnail);
+          setThumbnailIndex(thumbIdx >= 0 ? thumbIdx : 0);
+        }
+      }
+    }
+  }, [isEditing, adventure]);
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -52,7 +72,7 @@ function RecordVisitModal({ adventure, onSave, onClose }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>🎉 Record Your Visit!</h2>
+          <h2>{isEditing ? '✏️ Edit Your Visit' : '🎉 Record Your Visit!'}</h2>
           <p>{adventure.name}</p>
         </div>
         
@@ -129,7 +149,7 @@ function RecordVisitModal({ adventure, onSave, onClose }) {
               Cancel
             </button>
             <button type="submit" className="btn btn-primary">
-              🎊 Save Adventure!
+              {isEditing ? '💾 Update Adventure!' : '🎊 Save Adventure!'}
             </button>
           </div>
         </form>

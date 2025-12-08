@@ -26,9 +26,11 @@ function App() {
   });
   const [selectedAdventure, setSelectedAdventure] = useState(null);
   const [showRecordModal, setShowRecordModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [viewingAdventure, setViewingAdventure] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterVisited, setFilterVisited] = useState('all'); // 'all', 'visited', 'not-visited'
 
   // Load adventures from API on mount
   useEffect(() => {
@@ -91,7 +93,15 @@ function App() {
 
   const handleRecordVisit = (adventure) => {
     setSelectedAdventure(adventure);
+    setIsEditing(false);
     setShowRecordModal(true);
+  };
+
+  const handleEditVisit = (adventure) => {
+    setSelectedAdventure(adventure);
+    setIsEditing(true);
+    setShowRecordModal(true);
+    setViewingAdventure(null);
   };
 
   const handleSaveVisit = async (visitData) => {
@@ -111,6 +121,15 @@ function App() {
     
     setShowRecordModal(false);
     setSelectedAdventure(null);
+    setIsEditing(false);
+    
+    // If we were editing from detail view, update the viewing adventure
+    if (isEditing && viewingAdventure) {
+      const updatedAdventure = updatedAdventures[activeTab].find(a => a.id === selectedAdventure.id);
+      if (updatedAdventure) {
+        setViewingAdventure(updatedAdventure);
+      }
+    }
   };
 
   const handleViewAdventure = (adventure) => {
@@ -124,9 +143,13 @@ function App() {
   };
 
   const currentAdventures = adventures[activeTab] || [];
-  const filteredAdventures = currentAdventures.filter(adventure =>
-    adventure.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredAdventures = currentAdventures.filter(adventure => {
+    const matchesSearch = adventure.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = filterVisited === 'all' || 
+      (filterVisited === 'visited' && adventure.visited) ||
+      (filterVisited === 'not-visited' && !adventure.visited);
+    return matchesSearch && matchesFilter;
+  });
   const visitedCount = currentAdventures.filter(a => a.visited).length;
   const totalCount = currentAdventures.length;
   const progressPercent = totalCount > 0 ? (visitedCount / totalCount) * 100 : 0;
@@ -157,6 +180,7 @@ function App() {
               setActiveTab(tab.id);
               setViewingAdventure(null);
               setSearchTerm('');
+              setFilterVisited('all');
             }}
           >
             <span className="tab-emoji">{tab.emoji}</span>
@@ -169,6 +193,7 @@ function App() {
         <AdventureDetail
           adventure={viewingAdventure}
           onBack={handleBackToList}
+          onEdit={handleEditVisit}
         />
       ) : (
         <>
@@ -190,14 +215,36 @@ function App() {
           </div>
 
           <div className="adventure-list">
-            <div className="search-box">
-              <input
-                type="text"
-                className="search-input"
-                placeholder="🔍 Search adventures..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+            <div className="search-filter-container">
+              <div className="search-box">
+                <input
+                  type="text"
+                  className="search-input"
+                  placeholder="🔍 Search adventures..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <div className="filter-buttons">
+                <button
+                  className={`filter-btn ${filterVisited === 'all' ? 'active' : ''}`}
+                  onClick={() => setFilterVisited('all')}
+                >
+                  📋 All
+                </button>
+                <button
+                  className={`filter-btn ${filterVisited === 'visited' ? 'active' : ''}`}
+                  onClick={() => setFilterVisited('visited')}
+                >
+                  ✅ Visited
+                </button>
+                <button
+                  className={`filter-btn ${filterVisited === 'not-visited' ? 'active' : ''}`}
+                  onClick={() => setFilterVisited('not-visited')}
+                >
+                  ⭕ Not Visited
+                </button>
+              </div>
             </div>
             <AdventureList
               adventures={filteredAdventures}
@@ -215,7 +262,9 @@ function App() {
           onClose={() => {
             setShowRecordModal(false);
             setSelectedAdventure(null);
+            setIsEditing(false);
           }}
+          isEditing={isEditing}
         />
       )}
     </div>
