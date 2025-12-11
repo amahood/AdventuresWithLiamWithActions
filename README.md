@@ -79,7 +79,7 @@ The app will be available at http://localhost:3000
 
 ## Deployment to Azure
 
-### Option 1: Azure Static Web Apps (Recommended) --TRYING THIS
+### Option 1: Azure Static Web Apps (Recommended) --TRYING THISgit remotes
 
 1. Create an Azure Static Web App in the Azure Portal
 2. Connect it to your GitHub repository
@@ -174,3 +174,5 @@ AdventuresWithLiam/
 ## License
 
 MIT - Built with ❤️ for family adventures!
+
+Test
