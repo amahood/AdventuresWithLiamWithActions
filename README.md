@@ -89,11 +89,11 @@ The app will be available at http://localhost:3000
    - Output location: `/build`
 
 4. Add application settings in Azure Portal:
-   - `COSMOS_CONNECTION_STRING`
-   - `COSMOS_DATABASE_NAME`
-   - `COSMOS_CONTAINER_NAME`
-   - `BLOB_CONNECTION_STRING`
-   - `BLOB_CONTAINER_NAME`
+   - `COSMOS_CONNECTION_STRING` - Your Cosmos DB connection string
+   - `COSMOS_DATABASE_NAME` - AdventuresWithLiam
+   - `COSMOS_CONTAINER_NAME` - adventures
+   - `BLOB_CONNECTION_STRING` - Your Blob Storage connection string
+   - `BLOB_CONTAINER_NAME` - adventure-images
 
 ### Option 2: Manual Deployment
 
