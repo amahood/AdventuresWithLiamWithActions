@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
-function AdventureDetail({ adventure, onBack, onEdit }) {
+function AdventureDetail({ adventure, onBack, onEdit, onDelete }) {
   const [viewerOpen, setViewerOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -56,6 +56,9 @@ function AdventureDetail({ adventure, onBack, onEdit }) {
           </button>
           <button className="edit-btn" onClick={() => onEdit(adventure)}>
             ✏️ Edit Visit
+          </button>
+          <button className="delete-btn" onClick={() => onDelete(adventure)}>
+            🗑️ Remove Visit
           </button>
         </div>
         <h2>🎉 {adventure.name}</h2>

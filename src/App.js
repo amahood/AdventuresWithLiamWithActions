@@ -142,6 +142,29 @@ function App() {
     }
   };
 
+  const handleDeleteVisit = async (adventure) => {
+    if (!window.confirm(`Are you sure you want to remove the visit record for "${adventure.name}"? This will delete all memories and photos for this adventure.`)) {
+      return;
+    }
+
+    const updatedAdventures = { ...adventures };
+    const categoryAdventures = updatedAdventures[activeTab];
+    const index = categoryAdventures.findIndex(a => a.id === adventure.id);
+    
+    if (index !== -1) {
+      // Reset the adventure to unvisited state
+      categoryAdventures[index] = {
+        id: adventure.id,
+        name: adventure.name,
+        visited: false,
+      };
+      setAdventures(updatedAdventures);
+      await saveAdventure(activeTab, categoryAdventures[index]);
+    }
+    
+    setViewingAdventure(null);
+  };
+
   const handleBackToList = () => {
     setViewingAdventure(null);
   };
@@ -198,6 +221,7 @@ function App() {
           adventure={viewingAdventure}
           onBack={handleBackToList}
           onEdit={handleEditVisit}
+          onDelete={handleDeleteVisit}
         />
       ) : (
         <>
