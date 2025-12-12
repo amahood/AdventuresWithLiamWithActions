@@ -89,7 +89,7 @@ function AdventureDetail({ adventure, onBack, onEdit }) {
                 <img
                   key={index}
                   src={image}
-                  alt={`${adventure.name} - Photo ${index + 1}`}
+                  alt={`${adventure.name} ${index + 1}`}
                   className="gallery-image"
                   onClick={() => openViewer(index)}
                 />
@@ -126,7 +126,7 @@ function AdventureDetail({ adventure, onBack, onEdit }) {
             <div className="viewer-image-container">
               <img
                 src={adventure.images[currentImageIndex]}
-                alt={`${adventure.name} - Photo ${currentImageIndex + 1}`}
+                alt={`${adventure.name} ${currentImageIndex + 1}`}
                 className="viewer-image"
               />
             </div>

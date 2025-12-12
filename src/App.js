@@ -34,48 +34,52 @@ function App() {
 
   // Load adventures from API on mount
   useEffect(() => {
-    loadAdventures();
-  }, []);
-
-  const loadAdventures = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/adventures`);
-      if (response.ok) {
-        const data = await response.json();
-        if (data && Object.keys(data).length > 0) {
-          // Merge API data with default lists
-          const mergedAdventures = { ...adventures };
-          Object.keys(data).forEach(category => {
-            if (mergedAdventures[category]) {
-              mergedAdventures[category] = mergedAdventures[category].map(adventure => {
-                const savedAdventure = data[category].find(a => a.id === adventure.id);
-                return savedAdventure ? { ...adventure, ...savedAdventure } : adventure;
+    const loadAdventures = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/adventures`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data && Object.keys(data).length > 0) {
+            // Merge API data with default lists
+            setAdventures(prev => {
+              const mergedAdventures = { ...prev };
+              Object.keys(data).forEach(category => {
+                if (mergedAdventures[category]) {
+                  mergedAdventures[category] = mergedAdventures[category].map(adventure => {
+                    const savedAdventure = data[category].find(a => a.id === adventure.id);
+                    return savedAdventure ? { ...adventure, ...savedAdventure } : adventure;
+                  });
+                }
               });
-            }
-          });
-          setAdventures(mergedAdventures);
-        }
-      }
-    } catch (error) {
-      console.log('Using local storage as fallback');
-      // Fallback to localStorage if API is not available
-      const saved = localStorage.getItem('adventures');
-      if (saved) {
-        const savedData = JSON.parse(saved);
-        const mergedAdventures = { ...adventures };
-        Object.keys(savedData).forEach(category => {
-          if (mergedAdventures[category]) {
-            mergedAdventures[category] = mergedAdventures[category].map(adventure => {
-              const savedAdventure = savedData[category].find(a => a.id === adventure.id);
-              return savedAdventure ? { ...adventure, ...savedAdventure } : adventure;
+              return mergedAdventures;
             });
           }
-        });
-        setAdventures(mergedAdventures);
+        }
+      } catch (error) {
+        console.log('Using local storage as fallback');
+        // Fallback to localStorage if API is not available
+        const saved = localStorage.getItem('adventures');
+        if (saved) {
+          const savedData = JSON.parse(saved);
+          setAdventures(prev => {
+            const mergedAdventures = { ...prev };
+            Object.keys(savedData).forEach(category => {
+              if (mergedAdventures[category]) {
+                mergedAdventures[category] = mergedAdventures[category].map(adventure => {
+                  const savedAdventure = savedData[category].find(a => a.id === adventure.id);
+                  return savedAdventure ? { ...adventure, ...savedAdventure } : adventure;
+                });
+              }
+            });
+            return mergedAdventures;
+          });
+        }
       }
-    }
-    setLoading(false);
-  };
+      setLoading(false);
+    };
+    
+    loadAdventures();
+  }, []);
 
   const saveAdventure = async (category, adventure) => {
     try {
