@@ -16,6 +16,12 @@ const TABS = [
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
 
+// Whitelisted admin emails
+const ADMIN_EMAILS = [
+  'adam.m.mahood@gmail.com',
+  'campbell.carolynf@gmail.com'
+];
+
 function App() {
   const [activeTab, setActiveTab] = useState('wa-parks');
   const [adventures, setAdventures] = useState({
@@ -31,6 +37,30 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterVisited, setFilterVisited] = useState('all'); // 'all', 'visited', 'not-visited'
+  const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/.auth/me');
+        const data = await response.json();
+        if (data.clientPrincipal) {
+          setUser(data.clientPrincipal);
+          // Check if user email is in admin list
+          const userEmail = data.clientPrincipal.userDetails?.toLowerCase();
+          const isUserAdmin = ADMIN_EMAILS.some(email => 
+            email.toLowerCase() === userEmail
+          );
+          setIsAdmin(isUserAdmin);
+        }
+      } catch (error) {
+        console.log('Auth check failed:', error);
+      }
+    };
+    checkAuth();
+  }, []);
 
   // Load adventures from API on mount
   useEffect(() => {
@@ -194,8 +224,23 @@ function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>🌟 Adventures with Liam 🌟</h1>
-        <p>Exploring the world together, one adventure at a time!</p>
+        <div className="header-content">
+          <div className="header-title">
+            <h1>🌟 Adventures with Liam 🌟</h1>
+            <p>Exploring the world together, one adventure at a time!</p>
+          </div>
+          <div className="auth-section">
+            {user ? (
+              <div className="user-info">
+                <span className="user-name">👤 {user.userDetails}</span>
+                {isAdmin && <span className="admin-badge">✏️ Editor</span>}
+                <a href="/.auth/logout" className="auth-btn logout-btn">Logout</a>
+              </div>
+            ) : (
+              <a href="/login" className="auth-btn login-btn">🔐 Login to Edit</a>
+            )}
+          </div>
+        </div>
       </header>
 
       <nav className="tab-navigation">
@@ -222,6 +267,7 @@ function App() {
           onBack={handleBackToList}
           onEdit={handleEditVisit}
           onDelete={handleDeleteVisit}
+          isAdmin={isAdmin}
         />
       ) : (
         <>
@@ -278,6 +324,7 @@ function App() {
               adventures={filteredAdventures}
               onRecordVisit={handleRecordVisit}
               onViewAdventure={handleViewAdventure}
+              isAdmin={isAdmin}
             />
           </div>
         </>

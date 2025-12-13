@@ -1,6 +1,6 @@
 import React from 'react';
 
-function AdventureList({ adventures, onRecordVisit, onViewAdventure }) {
+function AdventureList({ adventures, onRecordVisit, onViewAdventure, isAdmin }) {
   return (
     <div className="adventure-grid">
       {adventures.map(adventure => (
@@ -34,7 +34,7 @@ function AdventureList({ adventures, onRecordVisit, onViewAdventure }) {
             </div>
           )}
           
-          {!adventure.visited && (
+          {!adventure.visited && isAdmin && (
             <button
               className="record-visit-btn"
               onClick={(e) => {
